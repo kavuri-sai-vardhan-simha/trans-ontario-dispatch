@@ -61,6 +61,9 @@ def start_tunnel():
 
 
 def links():
+    hosted = (os.environ.get("RENDER_EXTERNAL_URL") or os.environ.get("PUBLIC_URL") or "").rstrip("/")
+    if hosted:                       # running on a host (e.g. Render): its own address is the public link
+        return {"public": hosted, "lan": None, "best": hosted, "tunnel": "on", "why": None, "staff": None, "hosted": True}
     lan = f"http://{lan_ip()}:{PORT}"
     staff = f"{STATE['public']}/staff?key={STAFF_KEY}" if STATE["public"] else None
     return {"public": STATE["public"], "lan": lan, "best": STATE["public"] or lan, "tunnel": STATE["tunnel"], "why": STATE["why"], "staff": staff}

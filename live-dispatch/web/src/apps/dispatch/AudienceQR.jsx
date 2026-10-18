@@ -7,7 +7,7 @@ import { get } from "../../shared/api.js";
 export default function AudienceQR({ onClose }) {
   const [s, setS] = useState(null), [tab, setTab] = useState("public"), [img, setImg] = useState({});
   useEffect(() => { const load = () => get("/api/share").then(setS).catch(() => {}); load(); const id = setInterval(load, 4000); return () => clearInterval(id); }, []);
-  const urls = { public: s && s.public ? s.public + "/book" : null, wifi: s ? s.lan + "/book" : null };
+  const urls = { public: s && s.public ? s.public + "/book" : null, wifi: s && s.lan ? s.lan + "/book" : null };
   useEffect(() => {
     for (const k of ["public", "wifi"]) if (urls[k]) QRCode.toDataURL(urls[k], { width: 520, margin: 1, errorCorrectionLevel: "M" }).then(d => setImg(x => ({ ...x, [k]: d })));
   }, [urls.public, urls.wifi]);
@@ -21,10 +21,10 @@ export default function AudienceQR({ onClose }) {
   return (
     <div className="modal" role="dialog" aria-modal="true" aria-label="Book from your phone" onClick={e => e.target === e.currentTarget && onClose()}>
       <div className="box" style={{ maxWidth: 560, justifyItems: "center", textAlign: "center", gap: 14 }}>
-        <div className="seg" role="tablist" aria-label="Link type">
+        {!(s && s.hosted) && <div className="seg" role="tablist" aria-label="Link type">
           <button role="tab" aria-pressed={tab === "public"} aria-selected={tab === "public"} onClick={() => setTab("public")}>Public link</button>
           <button role="tab" aria-pressed={tab === "wifi"} aria-selected={tab === "wifi"} onClick={() => setTab("wifi")}>Same Wi-Fi</button>
-        </div>
+        </div>}
         <h2 style={{ fontSize: 26, margin: 0 }}>Book a pickup from your phone</h2>
         <p className="muted" style={{ margin: 0, maxWidth: 440 }}>{info[tab]}</p>
         {urls[tab] && img[tab] ? <img src={img[tab]} alt="QR code for the booking page" style={{ width: "min(400px, 78vw)", height: "auto", background: "#fff", padding: 10, borderRadius: 12 }} />
