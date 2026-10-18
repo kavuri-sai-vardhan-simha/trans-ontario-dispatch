@@ -79,6 +79,8 @@ export default function Dispatch() {
     if (sel?.type === "order" && opts && opts.order.pid === sel.pid) {
       const o = opts.order;
       if (!waiting.some(w => w.pid === o.pid)) pins.push({ id: "sel", kind: "order", lat: o.lat, lng: o.lng, label: o.a, hot: true });
+      const dp = o.drop && o.drop.lat != null ? o.drop : (o.dest && o.dest.lat != null ? { lat: o.dest.lat, lng: o.dest.lng, a: [o.dest.a, o.dest.city].filter(Boolean).join(", ") } : null);
+      if (dp) pins.push({ id: "selDrop", kind: "drop", lat: dp.lat, lng: dp.lng, label: `Drop-off · ${dp.a}${o.drop ? " (same day)" : " (next business day, via depot)"}` });
       const on = hl != null && opts.ok.some(x => x.u === hl) ? hl : (opts.ok[0] || {}).u;
       const shown = opts.ok.slice(0, 3).concat(opts.ok.filter(x => x.u === on && opts.ok.indexOf(x) >= 3));
       focus = shown.map(x => x.u);
@@ -89,6 +91,7 @@ export default function Dispatch() {
         lines.push({ pts: [[p[1], p[2]], [x.from.lat, x.from.lng], [o.lat, o.lng]], color: me ? "var(--accent)" : "var(--muted)", dash: me ? null : "6 6", weight: me ? 4 : 2.5 });
       });
       fitPts = hl != null && live[on] ? [[o.lat, o.lng], [live[on][1], live[on][2]]] : [[o.lat, o.lng]].concat(focus.map(u => live[u]).filter(Boolean).map(p => [p[1], p[2]]));
+      if (dp) fitPts.push([dp.lat, dp.lng]);
       fitKey = "o" + sel.pid + "-" + (hl ?? "");
     }
     if (sel?.type === "truck" && truck && truck.u === sel.u) {
@@ -210,6 +213,7 @@ export default function Dispatch() {
             <span><i style={{ background: "var(--crit)" }} />Truck full or broken down</span>
             <span><i style={{ background: "var(--surface)", borderStyle: "dashed" }} />Position from driver's phone</span>
             <span><svg width="12" height="14" viewBox="0 0 18 24"><path d="M9 23 C9 23 1 13.5 1 8.5 A8 8 0 0 1 17 8.5 C17 13.5 9 23 9 23Z" fill="var(--warn)" /></svg>Pickup waiting for a truck</span>
+            {sel?.type === "order" && <span><svg width="12" height="14" viewBox="0 0 18 24"><path d="M9 23 C9 23 1 13.5 1 8.5 A8 8 0 0 1 17 8.5 C17 13.5 9 23 9 23Z" fill="var(--ok)" /></svg>Drop-off of the selected order</span>}
           </div>
         </div>
 

@@ -25,7 +25,7 @@ const FR = {
   "Search order, address, customer…": "Chercher commande, adresse, client…", "Search truck or driver…": "Chercher camion ou chauffeur…",
   "Search order, address, truck…": "Chercher commande, adresse, camion…",
   "Truck, room on board": "Camion avec de la place", "Truck 70–90% full": "Camion plein à 70–90 %", "Truck full or broken down": "Camion plein ou arrêté",
-  "Position from driver's phone": "Position du téléphone du chauffeur", "Pickup waiting for a truck": "Ramassage en attente d'un camion",
+  "Position from driver's phone": "Position du téléphone du chauffeur", "Pickup waiting for a truck": "Ramassage en attente d'un camion", "Drop-off of the selected order": "Livraison de la commande choisie",
   "Driving": "En route", "At a stop": "À un arrêt", "Not started": "Pas parti", "Finished": "Terminé", "Heading to depot": "Retour au dépôt", "Stopped": "Arrêté",
   "Waiting for spare driver": "Attend un remplaçant", "Assigned": "Assigné",
   // dispatcher: order panel

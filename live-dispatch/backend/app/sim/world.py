@@ -602,7 +602,7 @@ class World:
         b = self.bookings.get(pk["id"])
         if b and b.get("consignee"):
             c = b["consignee"]
-            return {"name": c.get("name") or "", "a": c.get("address") or "", "city": c.get("city") or ""}
+            return {"name": c.get("name") or "", "a": c.get("address") or "", "city": c.get("city") or "", "lat": c.get("lat"), "lng": c.get("lng")}
         global _DEST
         if _DEST is None:
             try:
