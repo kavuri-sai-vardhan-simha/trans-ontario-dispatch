@@ -1,0 +1,19 @@
+# dependencies and builds
+node_modules/
+__pycache__/
+*.pyc
+
+# local state of the running prototype
+live-dispatch/data/processed/live.sqlite*
+live-dispatch/data/processed/clock.json
+
+# sponsor raw files (not shared publicly)
+live-dispatch/data/raw/*.xlsx
+live-dispatch/data/raw/*.zip
+
+# optional public-link helper (download it yourself, see HOW_TO_RUN.md)
+cloudflared.exe
+cloudflared
+
+.DS_Store
+Thumbs.db
