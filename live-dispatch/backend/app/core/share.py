@@ -7,10 +7,12 @@ Two ways to reach this laptop:
 Set TUNNEL=0 to switch the tunnel off.
 """
 from __future__ import annotations
-import os, re, shutil, socket, subprocess, threading
+import os, re, secrets, shutil, socket, subprocess, threading
 from pathlib import Path
 
 STATE = {"public": None, "tunnel": "off", "why": None}
+# The public link opens only the booking page. The team's own full-demo link carries this key.
+STAFF_KEY = os.environ.get("STAFF_KEY") or secrets.token_urlsafe(9)
 PORT = int(os.environ.get("PORT", "8000"))
 ROOT = Path(__file__).resolve().parents[3]
 
@@ -46,13 +48,17 @@ def start_tunnel():
 
     def read():
         for line in p.stdout:
-            m = re.search(r"https://[a-z0-9-]+\.trycloudflare\.com", line)
+            # cloudflared also prints its own service address (api.trycloudflare.com): skip it, keep the tunnel's
+            m = re.search(r"https://(?!api\.)[a-z0-9-]+\.trycloudflare\.com", line)
             if m and not STATE["public"]:
                 STATE.update(public=m.group(0), tunnel="on")
+            elif "failed to request quick tunnel" in line.lower() and not STATE["public"]:
+                STATE.update(tunnel="error", why="Cloudflare could not open a public link from this network")
         STATE.update(tunnel="stopped")
     threading.Thread(target=read, daemon=True).start()
 
 
 def links():
     lan = f"http://{lan_ip()}:{PORT}"
-    return {"public": STATE["public"], "lan": lan, "best": STATE["public"] or lan, "tunnel": STATE["tunnel"], "why": STATE["why"]}
+    staff = f"{STATE['public']}/staff?key={STAFF_KEY}" if STATE["public"] else None
+    return {"public": STATE["public"], "lan": lan, "best": STATE["public"] or lan, "tunnel": STATE["tunnel"], "why": STATE["why"], "staff": staff}

@@ -7,7 +7,7 @@ from __future__ import annotations
 import asyncio, json, re
 from pathlib import Path
 from fastapi import FastAPI, HTTPException, Request, WebSocket, WebSocketDisconnect
-from fastapi.responses import FileResponse, RedirectResponse
+from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 from .core import config as C
@@ -17,6 +17,29 @@ from .core import share
 
 app = FastAPI(title="Trans Ontario Live Dispatch (prototype)")
 W = World()
+
+# Visitors on the public link (audience phones) only get the booking page and what it needs.
+# The team's full-demo link (/staff?key=...) sets a cookie that unlocks every screen.
+PUBLIC_PATHS = {"/book", "/logo.png", "/favicon.ico", "/api/places", "/api/services"}
+PUBLIC_PREFIXES = ("/assets/", "/api/track/")
+
+
+@app.middleware("http")
+async def public_link_books_only(request: Request, call_next):
+    host = request.headers.get("host", "")
+    via_tunnel = host.endswith(".trycloudflare.com") or "cf-connecting-ip" in request.headers
+    if via_tunnel and request.cookies.get("to_staff") != share.STAFF_KEY:
+        p = request.url.path
+        if p == "/staff" and request.query_params.get("key") == share.STAFF_KEY:
+            r = RedirectResponse("/dispatch")
+            r.set_cookie("to_staff", share.STAFF_KEY, httponly=True, samesite="lax", secure=True, max_age=12 * 3600)
+            return r
+        ok = p in PUBLIC_PATHS or p.startswith(PUBLIC_PREFIXES) or (p == "/api/bookings" and request.method == "POST")
+        if not ok:
+            if p.startswith("/api/"):
+                return JSONResponse({"detail": "Not available on the public link"}, status_code=403)
+            return RedirectResponse("/book")
+    return await call_next(request)
 
 
 # ---------------- clock (prototype control: replay speed) ----------------

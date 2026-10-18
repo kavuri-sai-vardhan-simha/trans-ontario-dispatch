@@ -5,7 +5,7 @@ import { get } from "../../shared/api.js";
 /* Live demo: a big QR so people in the room can book a pickup from their phone (Web Dispatch stand-in).
    Their orders arrive here as new orders from Elite, tagged 📱. */
 export default function AudienceQR({ onClose }) {
-  const [s, setS] = useState(null), [img, setImg] = useState(null), [which, setWhich] = useState("best");
+  const [s, setS] = useState(null), [img, setImg] = useState(null), [which, setWhich] = useState("best"), [copied, setCopied] = useState(false);
   useEffect(() => { const load = () => get("/api/share").then(setS).catch(() => {}); load(); const id = setInterval(load, 4000); return () => clearInterval(id); }, []);
   const url = s ? (which === "lan" ? s.lan : s.best) + "/book" : null;
   useEffect(() => { if (url) QRCode.toDataURL(url, { width: 520, margin: 1, errorCorrectionLevel: "M" }).then(setImg); }, [url]);
@@ -16,11 +16,11 @@ export default function AudienceQR({ onClose }) {
         <h2 style={{ fontSize: 26 }}>Book a pickup from your phone</h2>
         <p className="muted" style={{ margin: 0 }}>Scan, drop a pin, press Book. Watch it arrive here and get a truck.</p>
         {img ? <img src={img} alt={`QR code for ${url}`} style={{ width: "min(440px, 80vw)", height: "auto", background: "#fff", padding: 10, borderRadius: 12 }} /> : <span className="muted">Making the code…</span>}
-        {url && <code style={{ fontSize: 15, wordBreak: "break-all" }}>{url}</code>}
         {s && <div className="muted" style={{ fontSize: 12.5 }}>
-          {s.public ? "Public link (works on mobile data and any Wi-Fi)." : s.tunnel === "starting" ? "Starting the public link… (a few seconds)" : "Same Wi-Fi only. For a public link, put cloudflared.exe in the APP_2 folder and restart."}
+          {s.public ? "Public link (works on mobile data and any Wi-Fi)." : s.tunnel === "starting" ? "Starting the public link… (a few seconds)" : s.tunnel === "error" ? "Same Wi-Fi only: Cloudflare could not open a public link from this network. Phones must join the laptop's Wi-Fi (or the laptop can use a phone hotspot and restart)." : "Same Wi-Fi only. For a public link, put cloudflared.exe in the APP_2 folder and restart."}
           {s.public && <> · <a href="#" onClick={e => { e.preventDefault(); setWhich(which === "lan" ? "best" : "lan"); }}>{which === "lan" ? "use the public link" : "use the Wi-Fi link"}</a></>}
-          <br />{s.audience} order{s.audience === 1 ? "" : "s"} from the audience so far · max 3 per phone
+          <br />{s.audience} order{s.audience === 1 ? "" : "s"} from the audience so far · max 3 per phone · the link opens the booking page only
+          {s.staff && <><br /><a href="#" onClick={e => { e.preventDefault(); navigator.clipboard && navigator.clipboard.writeText(s.staff).then(() => setCopied(true)); }}>{copied ? "Copied: full-demo link for judges" : "Copy the full-demo link (all screens) for judges"}</a></>}
         </div>}
         <button className="btn" onClick={onClose}>Close</button>
       </div>
