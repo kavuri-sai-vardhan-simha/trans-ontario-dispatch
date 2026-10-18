@@ -15,6 +15,11 @@ It sits **between the systems Trans Ontario already uses**: orders stay in **Eli
 | [`live-dispatch/`](live-dispatch/) | **The live prototype.** One server with five screens: Elite order desk (simulator), Dispatcher, Driver (inside Samsara Driver), Plan the day, and an audience booking page (stands in for Trans Ontario's Web Dispatch portal). Replays a real day from Trans Ontario's data. | Python 3.10+ → `run_prototype.bat` (Windows) or `./run_prototype.sh` (Mac/Linux). See [`live-dispatch/HOW_TO_RUN.md`](live-dispatch/HOW_TO_RUN.md). |
 | [`plan-the-day/`](plan-the-day/) | **Plan the day, standalone.** The whole-day planner in one HTML file: plans all 10 real days, compares the model's plan with the actual dispatch, disruptions, issues. Also embedded in the prototype at `/plan`. | Open `plan-the-day/index.html` in Chrome. No install. |
 
+## Live demo
+
+- **Full app (hosted on Render):** dispatcher `/dispatch`, Elite desk `/elite`, driver `/driver`, Plan the day `/plan`, booking `/book`. Deploy your own copy in one step: Render → **New → Blueprint** → this repo (`render.yaml`). The free plan sleeps after inactivity, so the first visit can take about a minute.
+- **Plan the day (GitHub Pages):** the standalone whole-day planner, served from `plan-the-day/index.html`.
+
 ## Results (10 real days, Sep 21 – Oct 2, 2026, Trans Ontario vehicles only)
 
 | | Our system | Real dispatch |

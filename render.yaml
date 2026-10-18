@@ -1,0 +1,16 @@
+# One-click hosting on Render (free plan): Dashboard -> New -> Blueprint -> pick this repo.
+services:
+  - type: web
+    name: trans-ontario-dispatch
+    runtime: python
+    plan: free
+    rootDir: live-dispatch/backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: python -m uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: OPEN_ALL
+        value: "1"
+      - key: TUNNEL
+        value: "0"
+      - key: PYTHON_VERSION
+        value: "3.12.4"

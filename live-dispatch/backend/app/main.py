@@ -4,7 +4,7 @@ Run:  python -m uvicorn app.main:app --port 8000      (from APP_2/backend)
 Apps: http://localhost:8000/dispatch   http://localhost:8000/book   http://localhost:8000/driver
 """
 from __future__ import annotations
-import asyncio, json, re
+import asyncio, json, os, re
 from pathlib import Path
 from fastapi import FastAPI, HTTPException, Request, WebSocket, WebSocketDisconnect
 from fastapi.responses import FileResponse, JSONResponse, RedirectResponse
@@ -27,6 +27,8 @@ PUBLIC_PREFIXES = ("/assets/", "/api/track/")
 @app.middleware("http")
 async def public_link_books_only(request: Request, call_next):
     host = request.headers.get("host", "")
+    if os.environ.get("OPEN_ALL") == "1":          # hosted demo (e.g. Render): every screen is open
+        return await call_next(request)
     via_tunnel = host.endswith(".trycloudflare.com") or "cf-connecting-ip" in request.headers
     if via_tunnel and request.cookies.get("to_staff") != share.STAFF_KEY:
         p = request.url.path
