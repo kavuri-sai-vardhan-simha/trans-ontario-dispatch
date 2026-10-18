@@ -52,6 +52,8 @@ def start_tunnel():
             m = re.search(r"https://(?!api\.)[a-z0-9-]+\.trycloudflare\.com", line)
             if m and not STATE["public"]:
                 STATE.update(public=m.group(0), tunnel="on")
+                print(f"\n  Public booking link : {m.group(0)}/book", flush=True)
+                print(f"  Full demo for judges: {m.group(0)}/staff?key={STAFF_KEY}\n", flush=True)
             elif "failed to request quick tunnel" in line.lower() and not STATE["public"]:
                 STATE.update(tunnel="error", why="Cloudflare could not open a public link from this network")
         STATE.update(tunnel="stopped")
